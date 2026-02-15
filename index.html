@@ -1,62 +1,87 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script>
-      AFRAME.registerComponent("auto-center", {
-        init: function () {
-          this.el.addEventListener("model-loaded", () => {
-            const mesh = this.el.getObject3D("mesh");
-            if (!mesh) return;
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-            // Bungkus model dalam group baru
-            const group = new THREE.Group();
-            group.add(mesh);
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-            // Fix Z-up → Y-up
-            group.rotation.x = -Math.PI / 2;
+  <style>
+    body { margin: 0; overflow: hidden; }
 
-            // Hitung bounding box
-            const box = new THREE.Box3().setFromObject(group);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
+    /* Mirror camera */
+    video, canvas {
+      transform: scaleX(-1);
+    }
+  </style>
 
-            // Geser supaya benar-benar center
-            group.position.sub(center);
+  <script>
+    AFRAME.registerComponent("auto-center", {
+      init: function () {
+        this.el.addEventListener("model-loaded", () => {
 
-            // Normalize scale
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 0.6 / maxDim;
-            group.scale.setScalar(scale);
+          const mesh = this.el.getObject3D("mesh");
+          if (!mesh) return;
 
-            // Replace original mesh
-            this.el.setObject3D("mesh", group);
-          });
-        },
-      });
-    </script>
-  </head>
+          // Bungkus dalam group supaya aman
+          const group = new THREE.Group();
+          group.add(mesh);
 
-  <body>
-    <a-scene
-      mindar-image="imageTargetSrc: ./targets.mind;"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-      <a-assets>
-        <a-asset-item id="myModel" src="./model.glb"></a-asset-item>
-      </a-assets>
+          // Fix Blender Z-up ke A-Frame Y-up
+          group.rotation.x = -Math.PI / 2;
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+          // Hitung bounding box
+          const box = new THREE.Box3().setFromObject(group);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-gltf-model src="#myModel" auto-center></a-gltf-model>
-      </a-entity>
-    </a-scene>
-  </body>
+          // Center model
+          group.position.sub(center);
+
+          // Normalize scale
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 0.6 / maxDim;
+          group.scale.setScalar(scale);
+
+          // Replace mesh
+          this.el.setObject3D("mesh", group);
+        });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <a-scene
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      facingMode: user;
+      filterMinCF: 0.001;
+      filterBeta: 0.01;
+    "
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
+
+    <a-assets>
+      <a-asset-item id="myModel" src="./model.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-gltf-model
+        src="#myModel"
+        auto-center
+        scale="-1 1 1"
+      ></a-gltf-model>
+    </a-entity>
+
+  </a-scene>
+</body>
 </html>
