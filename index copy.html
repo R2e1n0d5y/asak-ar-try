@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <!-- MindAR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      /* Mirror camera */
+      video,
+      canvas {
+        transform: scaleX(-1);
+      }
+    </style>
+
+    <script>
+      AFRAME.registerComponent("auto-center", {
+        init: function () {
+          this.el.addEventListener("model-loaded", () => {
+            const mesh = this.el.getObject3D("mesh");
+            if (!mesh) return;
+
+            const group = new THREE.Group();
+            group.add(mesh);
+
+            // Blender Z-up → A-Frame Y-up
+            group.rotation.x = -Math.PI / 2;
+
+            const box = new THREE.Box3().setFromObject(group);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            mesh.position.sub(center);
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 0.6 / maxDim;
+            group.scale.setScalar(scale);
+
+            this.el.setObject3D("mesh", group);
+          });
+        },
+      });
+    </script>
+  </head>
+
+  <body>
+
+    <!-- ================= SINGLE MIND (18 HURUF) ================= -->
+    <!-- Pastikan semua 18 gambar sudah di-compile jadi 1 file targets.mind -->
+
+    <a-scene
+      mindar-image="
+        imageTargetSrc: ./targets18.mind;
+        facingMode: user;
+        filterMinCF: 0.001;
+        filterBeta: 0.01;
+      "
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+
+      <a-assets>
+        <!-- <a-asset-item id="ha"  src="./1.HurufHa.glb"></a-asset-item>
+        <a-asset-item id="na"  src="./2.HurufNa.glb"></a-asset-item>
+        <a-asset-item id="ca"  src="./3.HurufCa.glb"></a-asset-item>
+        <a-asset-item id="ra"  src="./4.HurufRa.glb"></a-asset-item>
+        <a-asset-item id="ka"  src="./5.HurufKa.glb"></a-asset-item>
+        <a-asset-item id="da"  src="./6.HurufDa.glb"></a-asset-item>
+        <a-asset-item id="ta"  src="./7.HurufTa.glb"></a-asset-item>
+        <a-asset-item id="sa"  src="./8.HurufSa.glb"></a-asset-item>
+        <a-asset-item id="wa"  src="./9.HurufWa.glb"></a-asset-item>
+        <a-asset-item id="la"  src="./10.HurufLa.glb"></a-asset-item>
+        <a-asset-item id="ma"  src="./11.HurufMa.glb"></a-asset-item>
+        <a-asset-item id="ga"  src="./12.HurufGa.glb"></a-asset-item>
+        <a-asset-item id="ba"  src="./13.HurufBa.glb"></a-asset-item>
+        <a-asset-item id="nga" src="./14.HurufNga.glb"></a-asset-item>
+        <a-asset-item id="pa"  src="./15.HurufPa.glb"></a-asset-item>
+        <a-asset-item id="ja"  src="./16.HurufJa.glb"></a-asset-item>
+        <a-asset-item id="ya"  src="./17.HurufYa.glb"></a-asset-item>
+        <a-asset-item id="nya" src="./18.HurufNya.glb"></a-asset-item> -->
+        <a-asset-item id="ha" src="./Ha.glb"></a-asset-item>
+        <a-asset-item id="na" src="./Na.glb"></a-asset-item>
+        <a-asset-item id="ca" src="./Ca.glb"></a-asset-item>
+        <a-asset-item id="ra" src="./Ra.glb"></a-asset-item>
+        <a-asset-item id="ka" src="./Ka.glb"></a-asset-item>
+        <a-asset-item id="da" src="./Da.glb"></a-asset-item>
+        <a-asset-item id="ta" src="./Ta.glb"></a-asset-item>
+        <a-asset-item id="sa" src="./Sa.glb"></a-asset-item>
+        <a-asset-item id="wa" src="./Wa.glb"></a-asset-item>
+        <a-asset-item id="la" src="./La.glb"></a-asset-item>
+        <a-asset-item id="ma" src="./Ma.glb"></a-asset-item>
+        <a-asset-item id="ga" src="./Ga.glb"></a-asset-item>
+        <a-asset-item id="ba" src="./Ba.glb"></a-asset-item>
+        <a-asset-item id="nga" src="./Nga.glb"></a-asset-item>
+        <a-asset-item id="pa" src="./Pa.glb"></a-asset-item>
+        <a-asset-item id="ja" src="./Ja.glb"></a-asset-item>
+        <a-asset-item id="ya" src="./Ya.glb"></a-asset-item>
+        <a-asset-item id="nya" src="./Nya.glb"></a-asset-item>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- targetIndex sesuai urutan upload saat compile targets.mind -->
+
+      <a-entity mindar-image-target="targetIndex: 0"><a-gltf-model src="#ha" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 1"><a-gltf-model src="#na" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 2"><a-gltf-model src="#ca" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 3"><a-gltf-model src="#ra" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 4"><a-gltf-model src="#ka" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 5"><a-gltf-model src="#da" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 6"><a-gltf-model src="#ta" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 7"><a-gltf-model src="#sa" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 8"><a-gltf-model src="#wa" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 9"><a-gltf-model src="#la" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 10"><a-gltf-model src="#ma" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 11"><a-gltf-model src="#ga" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 12"><a-gltf-model src="#ba" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 13"><a-gltf-model src="#nga" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 14"><a-gltf-model src="#pa" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 15"><a-gltf-model src="#ja" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 16"><a-gltf-model src="#ya" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+      <a-entity mindar-image-target="targetIndex: 17"><a-gltf-model src="#nya" auto-center scale="-1 -1 1" position="0 1.5 0"></a-gltf-model></a-entity>
+
+    </a-scene>
+
+  </body>
+</html>
